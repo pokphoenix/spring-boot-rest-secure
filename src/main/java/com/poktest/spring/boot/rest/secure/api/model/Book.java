@@ -43,6 +43,13 @@ public class Book {
         this.price = price;
     }
 
+    public Book(Long id, @NotEmpty(message = "Please provide a name") String name, @NotEmpty(message = "Please provide a author") String author, @NotNull(message = "Please provide a price") @DecimalMin("1.00") BigDecimal price) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.price = price;
+    }
+
     public Long getId() {
         return id;
     }
