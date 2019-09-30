@@ -1,0 +1,78 @@
+{
+	"variables": [],
+	"info": {
+		"name": "rest-api-validate",
+		"_postman_id": "7bda78dd-85e6-19e6-9556-4541e36f5881",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "getAllBook",
+			"request": {
+				"url": "http://localhost:8080/book",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "getBookById",
+			"request": {
+				"url": "http://localhost:8080/book/1",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "createNewBook",
+			"request": {
+				"url": "http://localhost:8080/book",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Pok\",\n    \"author\": \"PokAha\",\n    \"price\": 10\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "updateBook",
+			"request": {
+				"url": "http://localhost:8080/book/4",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46cGFzc3dvcmQ=",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Spring REST tutorials\",\n    \"author\":\"pokAha\",\n    \"price\" : 10.00\n   \n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
