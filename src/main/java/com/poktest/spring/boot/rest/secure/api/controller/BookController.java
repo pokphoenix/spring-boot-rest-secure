@@ -25,7 +25,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    Book get(@PathVariable("id") Long id){
+    Book get(@PathVariable("id") String id){
         return repo.findById(id).
                 orElseThrow(()->new EntityNotFoundException());
     }
@@ -36,7 +36,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    Book saveOrUpdate(@Valid @RequestBody Book data,@PathVariable("id") Long id){
+    Book saveOrUpdate(@Valid @RequestBody Book data,@PathVariable("id") String id){
         return repo.findById(id).map(x->{
             x.setName(data.getName());
             x.setAuthor(data.getAuthor());
@@ -49,7 +49,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    void delete(@PathVariable("id") Long id){
+    void delete(@PathVariable("id") String id){
         repo.deleteById(id);
     }
 

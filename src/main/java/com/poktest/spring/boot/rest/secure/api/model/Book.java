@@ -1,5 +1,8 @@
 package com.poktest.spring.boot.rest.secure.api.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -11,8 +14,13 @@ import java.math.BigDecimal;
 @Entity
 public class Book {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private String id;
 
     @NotEmpty(message = "Please provide a name")
     private String name;
@@ -43,18 +51,18 @@ public class Book {
         this.price = price;
     }
 
-    public Book(Long id, @NotEmpty(message = "Please provide a name") String name, @NotEmpty(message = "Please provide a author") String author, @NotNull(message = "Please provide a price") @DecimalMin("1.00") BigDecimal price) {
+    public Book(String id, @NotEmpty(message = "Please provide a name") String name, @NotEmpty(message = "Please provide a author") String author, @NotNull(message = "Please provide a price") @DecimalMin("1.00") BigDecimal price) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.price = price;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -1,78 +1,125 @@
 {
-	"variables": [],
 	"info": {
+		"_postman_id": "2a419e56-6f98-414d-a9c5-41b37b3a089c",
 		"name": "rest-api-validate",
-		"_postman_id": "7bda78dd-85e6-19e6-9556-4541e36f5881",
-		"description": "",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "getAllBook",
 			"request": {
-				"url": "http://localhost:8080/book",
 				"method": "GET",
 				"header": [],
-				"body": {},
-				"description": ""
+				"url": {
+					"raw": "http://localhost:8080/book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"book"
+					]
+				}
 			},
 			"response": []
 		},
 		{
 			"name": "getBookById",
 			"request": {
-				"url": "http://localhost:8080/book/1",
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
-				"body": {},
-				"description": ""
+				"url": {
+					"raw": "http://localhost:8080/book/0f5016eb-0438-47cb-88e6-bc0d3531933b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"book",
+						"0f5016eb-0438-47cb-88e6-bc0d3531933b"
+					]
+				}
 			},
 			"response": []
 		},
 		{
 			"name": "createNewBook",
 			"request": {
-				"url": "http://localhost:8080/book",
 				"method": "POST",
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"value": "application/json"
 					}
 				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"name\": \"Pok\",\n    \"author\": \"PokAha\",\n    \"price\": 10\n}"
 				},
-				"description": ""
+				"url": {
+					"raw": "http://localhost:8080/book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"book"
+					]
+				}
 			},
 			"response": []
 		},
 		{
 			"name": "updateBook",
 			"request": {
-				"url": "http://localhost:8080/book/4",
 				"method": "PUT",
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"value": "application/json"
 					},
 					{
 						"key": "Authorization",
-						"value": "Basic YWRtaW46cGFzc3dvcmQ=",
-						"description": ""
+						"value": "Basic YWRtaW46cGFzc3dvcmQ="
 					}
 				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"name\": \"Spring REST tutorials\",\n    \"author\":\"pokAha\",\n    \"price\" : 10.00\n   \n}"
 				},
-				"description": ""
+				"url": {
+					"raw": "http://localhost:8080/book/0f5016eb-0438-47cb-88e6-bc0d3531933b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"book",
+						"0f5016eb-0438-47cb-88e6-bc0d3531933b"
+					]
+				}
 			},
 			"response": []
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
