@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
     // Let Spring handle the exception, we just override the status code
     // by default when JPA select not found data it return error 500
     @ExceptionHandler(BookNotFoundException.class)
@@ -45,52 +44,46 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 
-
     @ExceptionHandler(BookUnSupportedFieldPatchException.class)
     public void springUnSupportedFieldPatch(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.METHOD_NOT_ALLOWED.value());
     }
 
+    // error handle for @Valid
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", new Date());
+        body.put("status", status.value());
+        //Get all errors
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(x -> x.getDefaultMessage())
+                .collect(Collectors.toList());
+        body.put("errors", errors);
+        return new ResponseEntity<>(body, headers, status);
+    }
 
-    // @Validate For Validating Path Variables and Request Parameters
+
 //    @ExceptionHandler(ConstraintViolationException.class)
-//    public void constraintViolationException(HttpServletResponse response) throws IOException {
+//    public void constraintViolationException(MethodArgumentNotValidException ex,HttpServletResponse response) throws IOException {
 //        response.sendError(HttpStatus.BAD_REQUEST.value());
 //    }
 
-    // error handle for @Valid
-//    @Override
-//    protected ResponseEntity<Object>
-//    handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-//                                 HttpHeaders headers,
-//                                 HttpStatus status, WebRequest request ) {
-//
-//        Map<String, Object> body = new LinkedHashMap<>();
-//        body.put("timestamp", new Date());
-//        body.put("status", status.value());
-//
-//        //Get all fields errors
-//        List<String> errors = ex.getBindingResult()
-//                .getFieldErrors()
-//                .stream()
-//                .map(x -> x.getDefaultMessage())
-//                .collect(Collectors.toList());
-//
-//        body.put("errors", errors);
-//
-//        System.err.println( request.getRemoteUser());
-//        System.err.println( request.getContextPath());
-//
-//
-//        request.getParameterMap().forEach((k,v)->{
-//            System.err.println("poktest : getParameterMap "+k+" : "+v);
-//        });
-//
-//        System.err.println( request.getUserPrincipal());
-//        System.err.println( request.getRemoteUser());
-//        return new ResponseEntity<>(body, headers, status);
-//
-//    }
 
+    // @Validate For Validating Path Variables and Request Parameters
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CustomErrorResponse> constraintViolationException(Exception ex, HttpServletRequest request) {
+        // below code for custom error
+        CustomErrorResponse errors = new CustomErrorResponse();
+        errors.setTimestamp(LocalDateTime.now());
+        errors.setError(ex.getMessage());
+        errors.setStatus(HttpStatus.BAD_REQUEST.value());
+        errors.setPath(request.getServletPath());
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 
 }

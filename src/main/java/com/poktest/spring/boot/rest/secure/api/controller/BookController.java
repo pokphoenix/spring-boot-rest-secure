@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +33,7 @@ public class BookController {
     @Autowired
     BookRepository repo;
 
-    @GetMapping
+    @GetMapping("/all")
     List<Book> getAll(){
         return repo.findAll();
     }
@@ -40,7 +43,7 @@ public class BookController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     //    this response content type application/json
-    Book get(@PathVariable("id") String id){
+    Book get(@PathVariable("id") @Size(min = 3) String id){
         return repo.findById(id).
                 orElseThrow(()->new BookNotFoundException(id));
     }
@@ -66,7 +69,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    Book saveOrUpdate(@Valid @RequestBody Book data,@PathVariable("id") String id){
+    Book saveOrUpdate(@Valid @RequestBody Book data,@PathVariable("id")  String id){
         return repo.findById(id).map(x->{
             x.setName(data.getName());
             x.setAuthor(data.getAuthor());
