@@ -3,10 +3,16 @@ package com.poktest.spring.boot.rest.secure.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 @Configuration
+@EnableWebSecurity   // this for check security in controller
+@EnableGlobalMethodSecurity(prePostEnabled = true) // this for check PreAuthorize role in controller
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Create 2 users for demo
@@ -37,7 +43,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.httpBasic()
             .and()
             .authorizeRequests()
-            .antMatchers(HttpMethod.GET, "/book/**").hasRole("USER")
+//                .antMatchers("/api/**").fullyAuthenticated().and()
+//            .antMatchers(HttpMethod.GET, "/book/**").hasRole("USER")    // comment because use @PreAuthorize("hasRole('USER')") in controller
             .antMatchers(HttpMethod.POST, "/book").hasRole("ADMIN")
             .antMatchers(HttpMethod.PUT, "/book/**").hasRole("ADMIN")
             .antMatchers(HttpMethod.PATCH, "/book/**").hasRole("ADMIN")
