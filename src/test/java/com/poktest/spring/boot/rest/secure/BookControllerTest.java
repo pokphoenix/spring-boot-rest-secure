@@ -1,5 +1,6 @@
 package com.poktest.spring.boot.rest.secure;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poktest.spring.boot.rest.secure.api.model.Book;
 import com.poktest.spring.boot.rest.secure.api.repository.BookRepository;
@@ -22,8 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 @ActiveProfiles("test")
 public class BookControllerTest {
 
+    private static final String TEST_UUID = "pok-test-1";
     private static final ObjectMapper om = new ObjectMapper();
 
     @Autowired
@@ -46,30 +47,30 @@ public class BookControllerTest {
 
     @BeforeEach
     public void init() {
-        Book book = new Book("23232-2f2343-4234234", "Book Name", "Mkyong", new BigDecimal("9.99"));
-        when(mockRepository.findById("23232-2f2343-4234234")).thenReturn(Optional.of(book));
+
+        Book book = new Book(TEST_UUID, "Book Name", "Mkyong", new BigDecimal("9.99"));
+        when(mockRepository.findById(TEST_UUID)).thenReturn(Optional.of(book));
     }
 
     @WithMockUser("USER")
     @Test
     public void find_bookId_OK() throws Exception {
-
-        mockMvc.perform(get("/book/23232-2f2343-4234234"))
+        mockMvc.perform(get("/book/"+TEST_UUID))
                 /*.andDo(print())*/
 //                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("23232-2f2343-4234234")))
+                .andExpect(jsonPath("$.id", is(TEST_UUID)))
                 .andExpect(jsonPath("$.name", is("Book Name")))
                 .andExpect(jsonPath("$.author", is("Mkyong")))
                 .andExpect(jsonPath("$.price", is(9.99)));
 
-        verify(mockRepository, times(1)).findById("23232-2f2343-4234234");
+        verify(mockRepository, times(1)).findById(TEST_UUID);
 
     }
 
     @Test
     public void find_nologin_401() throws Exception {
-        mockMvc.perform(get("/book/23232-2f2343-4234234"))
+        mockMvc.perform(get("/book/"+TEST_UUID))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -84,7 +85,7 @@ public class BookControllerTest {
 
         when(mockRepository.findAll()).thenReturn(books);
 
-        mockMvc.perform(get("/book"))
+        mockMvc.perform(get("/book/all"))
 //                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -103,7 +104,7 @@ public class BookControllerTest {
     @WithMockUser("USER")
     @Test
     public void find_bookIdNotFound_404() throws Exception {
-        mockMvc.perform(get("/book/5"))
+        mockMvc.perform(get("/book/523"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -113,7 +114,7 @@ public class BookControllerTest {
     @Test
     public void save_book_OK() throws Exception {
 
-        Book newBook = new Book("pok-test-1", "Spring Boot Guide", "mkyong", new BigDecimal("2.99"));
+        Book newBook = new Book(TEST_UUID, "Spring Boot Guide", "mkyong", new BigDecimal("2.99"));
         when(mockRepository.save(any(Book.class))).thenReturn(newBook);
 
         mockMvc.perform(post("/book")
@@ -122,12 +123,108 @@ public class BookControllerTest {
                 /*.andDo(print())*/
                 .andExpect(status().isOk())
 //                .andExpect(status().isCreated()) // for 201
-                .andExpect(jsonPath("$.id", is("pok-test-1")))
+                .andExpect(jsonPath("$.id", is(TEST_UUID)))
                 .andExpect(jsonPath("$.name", is("Spring Boot Guide")))
                 .andExpect(jsonPath("$.author", is("mkyong")))
                 .andExpect(jsonPath("$.price", is(2.99)));
 
         verify(mockRepository, times(1)).save(any(Book.class));
 
+    }
+
+    @WithMockUser(roles="ADMIN")
+    @Test
+    public void update_book_OK() throws Exception {
+
+        Book updateBook = new Book(TEST_UUID, "ABC", "mkyong", new BigDecimal("19.99"));
+        when(mockRepository.save(any(Book.class))).thenReturn(updateBook);
+
+        mockMvc.perform(put("/book/"+TEST_UUID)
+                .content(om.writeValueAsString(updateBook))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+               // .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(TEST_UUID)))
+                .andExpect(jsonPath("$.name", is("ABC")))
+                .andExpect(jsonPath("$.author", is("mkyong")))
+                .andExpect(jsonPath("$.price", is(19.99)));
+
+    }
+
+//    @WithMockUser(roles="ADMIN")
+//    @Test
+//    public void patch_bookAuthor_OK() throws Exception {
+//
+//        when(mockRepository.save(any(Book.class))).thenReturn(new Book());
+//        String patchInJson = "{\"author\":\"ultraman\"}";
+//
+//        mockMvc.perform(patch("/book/"+TEST_UUID)
+//                .content(patchInJson)
+//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+////                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+//                .andExpect(status().isOk());
+//
+//        verify(mockRepository, times(1)).findById(TEST_UUID);
+//        verify(mockRepository, times(1)).save(any(Book.class));
+//
+//    }
+    @WithMockUser(roles="ADMIN")
+    @Test
+    public void patch_bookPrice_405() throws Exception {
+
+        String patchInJson = "{\"price\":\"99.99\"}";
+
+        mockMvc.perform(patch("/book/"+TEST_UUID)
+                .content(patchInJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed());
+
+
+    }
+
+    @WithMockUser(roles="ADMIN")
+    @Test
+    public void delete_book_OK() throws Exception {
+
+        doNothing().when(mockRepository).deleteById(TEST_UUID);
+
+        mockMvc.perform(delete("/book/"+TEST_UUID))
+                /*.andDo(print())*/
+                .andExpect(status().isOk());
+
+        verify(mockRepository, times(1)).deleteById(TEST_UUID);
+    }
+
+    @WithMockUser(roles="ADMIN")
+    @Test
+    public void save_emptyAuthor_emptyPrice_400() throws Exception {
+
+        String bookInJson = "{\"name\":\"ABC\"}";
+
+        mockMvc.perform(post("/book")
+                .content(bookInJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp", is(notNullValue())))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors", hasSize(2)))
+//                .andExpect(jsonPath("$.errors", hasItem("Author is not allowed.")))
+                .andExpect(jsonPath("$.errors", hasItem("Please provide a author")))
+                .andExpect(jsonPath("$.errors", hasItem("Please provide a price")));
+
+        verify(mockRepository, times(0)).save(any(Book.class));
+
+    }
+
+    private static void printJSON(Object object) {
+        String result;
+        try {
+            result = om.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            System.out.println(result);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }
