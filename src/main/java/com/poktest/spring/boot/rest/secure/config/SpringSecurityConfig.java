@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
@@ -18,11 +20,22 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     // Create 2 users for demo
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
-        auth.inMemoryAuthentication()
-                .withUser("user").password("{noop}password").roles("USER")
-                .and()
-                .withUser("admin").password("{noop}password").roles("ADMIN","USER");
+//        auth.inMemoryAuthentication()
+//                .withUser("user").password("{noop}password").roles("USER")
+//                .and()
+//                .withUser("admin").password("{noop}password").roles("ADMIN","USER");
 
+
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        auth.inMemoryAuthentication()
+                .passwordEncoder(encoder)
+                .withUser("user")
+                .password(encoder.encode("password"))
+                .roles("USER")
+                .and()
+                .withUser("admin")
+                .password(encoder.encode("password"))
+                .roles("ADMIN","USER");
     }
 
       /*@Bean
@@ -43,12 +56,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.httpBasic()
             .and()
             .authorizeRequests()
-//                .antMatchers("/api/**").fullyAuthenticated().and()
 //            .antMatchers(HttpMethod.GET, "/book/**").hasRole("USER")    // comment because use @PreAuthorize("hasRole('USER')") in controller
             .antMatchers(HttpMethod.POST, "/book").hasRole("ADMIN")
             .antMatchers(HttpMethod.PUT, "/book/**").hasRole("ADMIN")
             .antMatchers(HttpMethod.PATCH, "/book/**").hasRole("ADMIN")
             .antMatchers(HttpMethod.DELETE, "/book/**").hasRole("ADMIN")
+//          .antMatchers("/api/**")
+//          .authenticated()
+//          .antMatchers("/public/**")
+//          .permitAll()
             .and()
             .csrf().disable()
             .formLogin().disable();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poktest.spring.boot.rest.secure.api.model.Book;
 import com.poktest.spring.boot.rest.secure.api.repository.BookRepository;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -217,6 +218,22 @@ public class BookControllerTest {
         verify(mockRepository, times(0)).save(any(Book.class));
 
     }
+
+
+    @Test
+    public void find_login_ok() throws Exception {
+        String basicDigestHeaderValue = "Basic " + new String(Base64.encodeBase64(("user:password").getBytes()));
+        mockMvc.perform(get("/book/"+TEST_UUID).header("Authorization", basicDigestHeaderValue))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(TEST_UUID)))
+                .andExpect(jsonPath("$.name", is("Book Name")))
+                .andExpect(jsonPath("$.author", is("Mkyong")))
+                .andExpect(jsonPath("$.price", is(9.99)));
+        verify(mockRepository, times(1)).findById(TEST_UUID);
+    }
+
+
 
     private static void printJSON(Object object) {
         String result;
