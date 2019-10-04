@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -24,9 +22,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@SpringBootTest(webEnvironment =  SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@ActiveProfiles("test")
-//@SpringBootTest
+@SpringBootTest
 public class BookControllerRestTemplateTest {
     private static final ObjectMapper om = new ObjectMapper();
     private static final String TEST_UUID = "pok-test-1";
@@ -54,7 +52,7 @@ public class BookControllerRestTemplateTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         JSONAssert.assertEquals(expected, response.getBody(), false);
     }
-
+    
     private static void printJSON(Object object) {
         String result;
         try {
